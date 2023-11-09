@@ -1,0 +1,10 @@
+pandas
+openai
+requests
+fastapi
+python-decouple
+python-multipart
+"uvicorn[standard]"
+llama-cpp-python
+xlrd
+openpyxl
