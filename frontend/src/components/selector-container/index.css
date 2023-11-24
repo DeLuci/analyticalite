@@ -1,0 +1,24 @@
+.gap-1 {
+    gap: 0.5rem;
+}
+
+.table-selector-container {
+    display: flex;
+    /*width: 100%;*/
+    margin: 1rem;
+    align-items: center;
+}
+
+button.custom-toggle {
+    background: transparent;
+}
+
+.button-container.close {
+    display: flex;
+    justify-content: flex-end;
+    flex: 1 1 auto;
+}
+
+.button-container.tables {
+    margin-left: .5rem;
+}

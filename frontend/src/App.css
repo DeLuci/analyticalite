@@ -1,0 +1,61 @@
+:root {
+    --main-bg: #343541;
+    --chat-history-bg: #000;
+    --default-font-size: 16px;
+}
+
+/* App.css */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  font-family: "Lucinda Grande", "Lucinda Sans Unicode", Helvetica, Arial, Verdana, sans-serif;
+}
+
+a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.App {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.App-header h1 {
+  /*background-color: var(--main-bg);*/
+  font-size: var(--default-font-size);
+  color: white;
+  padding: 20px;
+  flex-shrink: 0;
+}
+
+.main-content {
+    display: flex;
+    flex-grow: 1;
+    background-color: var(--main-bg);
+}
+
+.menu-content {
+    flex: 1;
+    position: fixed;
+    width: 300px;
+    height: 100vh;
+    background: var(--chat-history-bg);
+}
+
+.chatbot-section {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding-bottom: 20px;
+}
+
+
+
