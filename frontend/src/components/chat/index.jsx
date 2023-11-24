@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import './index.css';
 import axios from 'axios'
+import {TableContext} from "@/context/db.jsx";
 const Chatbot = () => {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
     const [file, setFile] = useState(null);
-
+    const [databaseInfo, setDatabaseInfo] = useState({})
+    const {tableResponse} = useContext(TableContext)
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
         if (selectedFile) {
@@ -22,6 +24,7 @@ const Chatbot = () => {
     };
 
     const uploadFile = async (e) => {
+        console.log("here")
         e.preventDefault()
         if (!file) return;
 
@@ -29,12 +32,12 @@ const Chatbot = () => {
         formData.append('file', file)
 
         try {
-            const response = await axios.post('http://localhost:8000', formData, {
+            const response = await axios.post('http://localhost:8000/load', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             });
-
+            console.log(response)
             setMessages(msgs => [...msgs, {text: "File uploaded successfully", sender: "bot"}]);
         } catch (error) {
             console.error('Error uploading file:', error);
@@ -45,7 +48,7 @@ const Chatbot = () => {
     const sendMessage = (e) => {
         e.preventDefault();
         if (!input.trim()) return;
-
+        console.log("passes here")
         setMessages([...messages, { text: input, sender: 'user' }]);
         setInput('');
 
@@ -58,7 +61,8 @@ const Chatbot = () => {
         <div className="chat-box">
             <div className="chat-window">
                 <div className="chat-top">
-
+                    <p>Label: {tableResponse?.label}</p>
+                    <p>Attribute: {tableResponse?.attribute}</p>
                 </div>
                 <div className="chat-bottom">
                     {messages.map((message, index) => (

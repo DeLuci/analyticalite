@@ -5,7 +5,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import DropdownWithButtons from "@/components/selector-container/index.jsx";
-
+import {TableInfoProvider} from '@/context/db.jsx';
 
 function App() {
   return (
@@ -18,10 +18,12 @@ function App() {
               <div className="chatbox-history-container">
               </div>
           </div>
-          <div className="chatbot-container">
-              <DropdownWithButtons />
-              <Chatbot />
-          </div>
+          <TableInfoProvider>
+              <div className="chatbot-container">
+                  <DropdownWithButtons />
+                  <Chatbot />
+              </div>
+          </TableInfoProvider>
       </div>
     </div>
   );
