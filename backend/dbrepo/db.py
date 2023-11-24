@@ -7,47 +7,49 @@ class Sqlite3Database(Repository, ABC):
     tables = ["entity", "attribute", "value"]
 
     def __init__(self):
-        self.conn = None
+        self.db = None
         self.selected_table = None
 
-    def close_connection(self):
-        try:
-            self.conn.close()
-            self.conn = None
-        except Exception as e:
-            raise Exception("Error closing connection:", e)
+    def close_db(self):
+        self.db = None
+
+    def connection(self):
+        return sqlite3.connect(self.db)
 
     def connect_to_database(self, database_path: str) -> Exception:
-        if self.conn is not None:
-            return Exception("Disconnect from database before connecting to a new one")
+        if self.db is not None:
+            return Exception("Close database before connecting to a new one")
 
         try:
-            self.conn = sqlite3.connect(database_path)
+            self.db = database_path
         except Exception as e:
             print("Error connecting to new database", e)
 
     def eav_schema(self, table_name: str):
+        conn = self.connection()
         try:
-            cur = self.conn.cursor()
+            cur = conn.cursor()
             cur.execute(f"CREATE TABLE IF NOT EXISTS {table_name}_entity (entityID INTEGER PRIMARY KEY, label TEXT);")
             cur.execute(f"CREATE TABLE IF NOT EXISTS {table_name}_attribute (attributeID INTEGER PRIMARY KEY, attribute TEXT);")
             cur.execute(f"CREATE TABLE IF NOT EXISTS {table_name}_value (entityID INTEGER, attributeID INTEGER, value TEXT, FOREIGN KEY (entityID) REFERENCES {table_name}_entity(entityID), FOREIGN KEY (attributeID) REFERENCES {table_name}_attribute(attributeID));")
-            self.conn.commit()
-            cur.close()
-        except sqlite3.OperationalError as e:
+            conn.commit()
+        except Exception as e:
             print("An error occured: ", e)
             raise
+        finally:
+            cur.close()
+            conn.close()
 
     def insert_table_info(self, table_name: str, label: list, attributes: list, value_map):
+        conn = self.connection()
         try:
-            cur = self.conn.cursor()
+            cur = conn.cursor()
             cur.executemany(f"INSERT INTO {table_name}_entity (label) VALUES (?)", label)
             cur.executemany(f"INSERT INTO {table_name}_attribute (attribute) VALUES (?)", attributes)
 
             label_map = {}
             attribute_map = {}
 
-            print("Problem at selecting data")
             cur.execute(f"SELECT label, entityID FROM {table_name}_entity")
             label_row = cur.fetchall()
 
@@ -68,30 +70,31 @@ class Sqlite3Database(Repository, ABC):
                 if entity_id is not None and attribute_id is not None:
                     values_to_insert.append((entity_id, attribute_id, value))
 
-            print("Problem at insert values")
             cur.executemany(f"INSERT INTO {table_name}_value VALUES (?, ?, ?)",
                             values_to_insert)
 
-            self.conn.commit()
+            conn.commit()
         except sqlite3.OperationalError as e:
             print(f"An error occurred: {e}")
-            self.conn.rollback()
+            conn.rollback()
             raise
         finally:
             cur.close()
 
     def drop_table(self, table_name: str):
+        conn = self.connection()
         try:
-            cur = self.conn.cursor()
+            cur = conn.cursor()
             cur.execute(f"DROP TABLE IF EXISTS {table_name}")
-            self.conn.commit()
+            conn.commit()
             cur.close()
         except Exception as e:
             print(f"Error deleting table '{table_name}':", e)
 
     def get_info(self, query: str) -> list:
+        conn = self.connection()
         try:
-            cur = self.conn.cursor()
+            cur = conn.cursor()
             cur.execute(query)
             rows = cur.fetchall()
             cur.close()
@@ -100,7 +103,8 @@ class Sqlite3Database(Repository, ABC):
             print("query failed: ", e)
 
     def get_tables(self) -> set:
-        cur = self.conn.cursor()
+        conn = self.connection()
+        cur = conn.cursor()
         cur.execute("""SELECT name from sqlite_master WHERE type='table';""")
         rows = cur.fetchall()
 
@@ -114,21 +118,13 @@ class Sqlite3Database(Repository, ABC):
             tables.add(table_name)
 
         cur.close()
+        conn.close()
         return tables
-
-    def get_table_info(self, table_name: str) -> list:
-        cur = self.conn.cursor()
-        cur.execute(f"SELECT * from {table_name} LIMIT 5")
-
-        rows = cur.fetchall()
-        cur.close()
-
-        return rows
 
     def fetch_table_creation_code(self):
         table_creation_sql = {}
-
-        cur = self.conn.cursor()
+        conn = self.connection()
+        cur = conn.cursor()
         for suffix in self.tables:
             table_name = f"{self.selected_table}_{suffix}"
             cur.execute(f"SELECT sql FROM sqlite_master WHERE type ='table' and name = '{table_name}'")
@@ -138,12 +134,13 @@ class Sqlite3Database(Repository, ABC):
                 table_creation_sql[suffix] = query[0]
 
         cur.close()
-        self.conn.commit()
+        conn.commit()
 
         return table_creation_sql
 
     def attribute_label_code(self):
-        cur = self.conn.cursor()
+        conn = self.connection()
+        cur = conn.cursor()
 
         mp = {}
 
@@ -158,7 +155,9 @@ class Sqlite3Database(Repository, ABC):
         mp["label"] = [tu[0] for tu in label_query]
         mp["attribute"] = [tu[0] for tu in attribute_query]
 
+        conn.commit()
         cur.close()
+        conn.close()
         return mp
 
     def set_selected_table(self, table_name):

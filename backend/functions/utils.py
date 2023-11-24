@@ -1,15 +1,17 @@
 import csv
+import io
+
 from openpyxl import load_workbook
 import pandas as pd
 
 
-def get_label_hierarchy(file_path: str, file_type: str) -> list:
+def get_label_hierarchy(file_content: bytes, file_type: str) -> list:
     indentation_list = []
     if file_type == "csv":
         def csv_indentation(cell_value):
             return len(cell_value) - len(cell_value.lstrip())
 
-        with open(file_path, newline='') as csvfile:
+        with io.StringIO(file_content.decode('utf-8')) as csvfile:
             reader = csv.reader(csvfile)
             for row in reader:
                 # Assuming the first column may have indentation
@@ -17,7 +19,7 @@ def get_label_hierarchy(file_path: str, file_type: str) -> list:
 
     elif file_type == "xlsx":
         # Load an Excel file
-        wb = load_workbook(file_path)
+        wb = load_workbook(filename=io.BytesIO(file_content))
         sheet = wb['Data']
         # Iterate through the rows and get indentation levels
         for row in sheet.iter_rows(min_row=2, max_col=1, max_row=sheet.max_row):

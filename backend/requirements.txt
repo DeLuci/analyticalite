@@ -4,7 +4,6 @@ requests
 fastapi
 python-decouple
 python-multipart
-"uvicorn[standard]"
+uvicorn[standard]
 llama-cpp-python
-xlrd
 openpyxl

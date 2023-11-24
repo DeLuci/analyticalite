@@ -1,8 +1,9 @@
 import pandas as pd
 import os
-
 import uvicorn
-from fastapi import FastAPI, Request, HTTPException, Depends
+import io
+
+from fastapi import FastAPI, HTTPException, UploadFile, File, Request
 from fastapi.middleware.cors import CORSMiddleware
 from dbrepo.db import Sqlite3Database
 from functions import utils, local_llm
@@ -36,7 +37,9 @@ async def root():
 
 
 @app.post("/connect")
-def connect_to_database(db_name: str):
+async def connect_to_database(request: Request):
+    data = await request.json()
+    db_name = data["db_name"]
     db_path = f'./databases/{db_name}.db'
 
     if not os.path.exists(db_path):
@@ -52,7 +55,7 @@ def connect_to_database(db_name: str):
 @app.post("/close")
 def close_database():
     try:
-        db.close_connection()
+        db.close_db()
         return {"message": "Successfully closed database connection"}
     except Exception:
         raise HTTPException(status_code=400, detail="Could not close database connection.")
@@ -75,16 +78,21 @@ def new_database(db_name: str):
 
 
 @app.post("/load")
-def load_file(file_path: str, file_name: str):
-    if db.conn is None:
+async def load_file(file: UploadFile = File(...)):
+    if db.db is None:
         raise HTTPException(status_code=400, detail="No database connection")
 
-    if file_path.endswith('.csv'):
-        indentation = utils.get_label_hierarchy(file_path, "csv")
-        df = pd.read_csv(file_path)
-    elif file_path.endswith('.xlsx'):
-        indentation = utils.get_label_hierarchy(file_path, "xlsx")
-        df = pd.read_excel(file_path, sheet_name="Data")
+    contents = await file.read()
+    file_name = file.filename
+
+    if file_name.endswith('.csv'):
+        indentation = utils.get_label_hierarchy(contents, "csv")
+        df = pd.read_csv(io.StringIO(contents.decode('utf-8')))
+        file_name = file_name.strip(".csv")
+    elif file_name.endswith('.xlsx'):
+        indentation = utils.get_label_hierarchy(contents, "xlsx")
+        df = pd.read_excel(io.BytesIO(contents), sheet_name="Data")
+        file_name = file_name.replace(".xlsx", "")
     else:
         raise HTTPException(status_code=400, detail="Unsupported file type")
 
@@ -120,7 +128,7 @@ def load_file(file_path: str, file_name: str):
 
 @app.post("/drop")
 def remove_table(table_name: str):
-    if db.conn is None:
+    if db.db is None:
         raise HTTPException(status_code=400, detail="No database connection")
 
     try:
@@ -132,30 +140,40 @@ def remove_table(table_name: str):
 
 @app.get("/tables")
 def db_tables():
-    if db.conn is None:
+    if db.db is None:
         raise HTTPException(status_code=400, detail="No database connection")
 
     try:
         list_of_table_names = db.get_tables()
-        return {"tables": list_of_table_names}
-    except Exception:
-        raise HTTPException(status_code=400, detail="")
+        return {"tables": list(list_of_table_names)}
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=400, detail=e)
 
 
 @app.post("/table")
-def selected_table(table_name: str):
-    if db.conn is None:
+async def selected_table(request: Request):
+    if db.db is None:
         raise HTTPException(status_code=400, detail="No database connection")
+
+    data = await request.json()
+    table_name = data["table_name"]
     try:
         db.set_selected_table(table_name)
-        return {"message": "Successfully selected table"}
     except Exception:
         raise HTTPException(status_code=400, detail="Table not found")
+
+    try:
+        mp = db.attribute_label_code()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Could not get table info")
+
+    return mp
 
 
 @app.get("/message")
 def receive_message(input: str):
-    if db.conn is None:
+    if db.db is None:
         raise HTTPException(status_code=400, detail="No database connection")
 
     schema = db.fetch_table_creation_code()
@@ -164,6 +182,19 @@ def receive_message(input: str):
     response_query = local_llm.generate_query(input, schema, attribute_label_info)
     print(response_query)
     return {"message": "here"}
+
+
+@app.get("/databases")
+def databases():
+    directory = "./databases"
+
+    files = os.listdir(directory)
+
+    if len(files) > 0:
+        db_files = [file.replace(".db", "") for file in files if file.endswith(".db")]
+        return {"databases": db_files}
+
+    return {"databases": []}
 
 
 if __name__ == "__main__":
