@@ -5,11 +5,11 @@ import pandas as pd
 
 class Repository:
     @abstractmethod
-    def create_table(self, row: tuple, column_names: tuple, table_name: str):
+    def eav_schema(self, table_name: str):
         raise NotImplementedError
 
     @abstractmethod
-    def insert_table_info(self, table_name: str, info_list: list):
+    def insert_table_info(self, table_name: str,  labels: list, attributes: list, values: list):
         raise NotImplementedError
 
     @abstractmethod

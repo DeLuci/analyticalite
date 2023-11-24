@@ -1,12 +1,11 @@
 import pandas as pd
-import re
 import os
 
 import uvicorn
 from fastapi import FastAPI, Request, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from dbrepo.db import Sqlite3Database
-from functions.tidy import tidy_df, sanitize_columns
+from functions import utils, local_llm
 
 # Initiating App
 app = FastAPI()
@@ -36,7 +35,7 @@ async def root():
     return {"message": "Hello World"}
 
 
-@app.post("/connect-db")
+@app.post("/connect")
 def connect_to_database(db_name: str):
     db_path = f'./databases/{db_name}.db'
 
@@ -50,7 +49,7 @@ def connect_to_database(db_name: str):
         raise HTTPException(status_code=400, detail="Cannot connect to Database")
 
 
-@app.post("/close-db")
+@app.post("/close")
 def close_database():
     try:
         db.close_connection()
@@ -59,7 +58,7 @@ def close_database():
         raise HTTPException(status_code=400, detail="Could not close database connection.")
 
 
-@app.post("/new-db")
+@app.post("/new")
 def new_database(db_name: str):
     db_path = f'./databases/{db_name}.db'
 
@@ -80,33 +79,46 @@ def load_file(file_path: str, file_name: str):
     if db.conn is None:
         raise HTTPException(status_code=400, detail="No database connection")
 
-    if file_path.endswith('.csv') or file_path.endswith('.txt'):
+    if file_path.endswith('.csv'):
+        indentation = utils.get_label_hierarchy(file_path, "csv")
         df = pd.read_csv(file_path)
     elif file_path.endswith('.xlsx'):
-        df = pd.read_excel(file_path)
+        indentation = utils.get_label_hierarchy(file_path, "xlsx")
+        df = pd.read_excel(file_path, sheet_name="Data")
     else:
         raise HTTPException(status_code=400, detail="Unsupported file type")
 
-    # df = tidy_df(df)
-    sanitize_columns(df)
+    utils.sanitize_columns(df, indentation)
+    utils.add_label_grouping(df)
+    df.drop("Indentation", axis=1, inplace=True)
+    df.dropna(subset=df.columns[1:], how='all', inplace=True)
 
-    data = [tuple(row) for row in df.to_records(index=False)]
-    columns_names = tuple(df.columns)
+    label_column = df['Label'] if 'Label' in df.columns else df['Label (Grouping)']
+    labels = [(label,) for label in label_column]
+    attributes = [(col,) for col in list(df.columns[1:])]
+
+    structured_data = {}
+
+    for index, row in df.iterrows():
+        label = row['Label']
+        for attribute in df.columns[1:]:
+            key = (label, attribute)
+            structured_data[key] = row[attribute]
 
     try:
-        db.create_table(data[0], columns_names, file_name)
+        db.eav_schema(file_name)
     except Exception:
         raise HTTPException(status_code=400, detail=f"Table could not be created")
 
     try:
-        db.insert_table_info(file_name, data)
+        db.insert_table_info(file_name, labels, attributes, structured_data)
     except Exception:
         raise HTTPException(status_code=400, detail=f"Table info could not be inserted")
 
     return {"message", "File loaded successfully"}
 
 
-@app.post("/drop-tb")
+@app.post("/drop")
 def remove_table(table_name: str):
     if db.conn is None:
         raise HTTPException(status_code=400, detail="No database connection")
@@ -130,7 +142,7 @@ def db_tables():
         raise HTTPException(status_code=400, detail="")
 
 
-@app.post("/selected-table")
+@app.post("/table")
 def selected_table(table_name: str):
     if db.conn is None:
         raise HTTPException(status_code=400, detail="No database connection")
@@ -141,14 +153,17 @@ def selected_table(table_name: str):
         raise HTTPException(status_code=400, detail="Table not found")
 
 
-# @app.get("/receive-message")
-# async def receive_message(message: str, table_name: str = Depends(db.table_sql_code())):
-#     query = llm_query(message, table_name)
-#     try:
-#         answer = db.get_info(query)
-#         return {"message", answer}
-#     except Exception as e:
-#         return {}
+@app.get("/message")
+def receive_message(input: str):
+    if db.conn is None:
+        raise HTTPException(status_code=400, detail="No database connection")
+
+    schema = db.fetch_table_creation_code()
+    attribute_label_info = db.attribute_label_code()
+
+    response_query = local_llm.generate_query(input, schema, attribute_label_info)
+    print(response_query)
+    return {"message": "here"}
 
 
 if __name__ == "__main__":
