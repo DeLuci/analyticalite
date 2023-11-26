@@ -1,7 +1,9 @@
 :root {
-    --main-bg: #343541;
-    --chat-history-bg: #000;
+    --main-bg: #343541; 
+    --side-panels-bg: #030303;
     --default-font-size: 16px;
+    --small-font-size: 14px;
+    --logo-font-size: 20px;
 }
 
 /* App.css */
@@ -15,6 +17,7 @@ html, body, #root {
   height: 100%;
   width: 100%;
   font-family: "Lucinda Grande", "Lucinda Sans Unicode", Helvetica, Arial, Verdana, sans-serif;
+  overscroll-behavior-y: none;
 }
 
 a {
@@ -22,18 +25,72 @@ a {
     text-decoration: none;
 }
 
-.App {
+.app {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
 
-.App-header h1 {
+.app-header {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header::after {
+  width: 28px;
+  content: "";
+  height: 1px;
+  background-color: #343541;
+  margin-left: 1rem;
+  margin-top: .3rem;
+  margin-bottom: .5rem;
+}
+
+.custon-btn-container {
   /*background-color: var(--main-bg);*/
-  font-size: var(--default-font-size);
+  /* font-size: var(--default-font-size); */
   color: white;
-  padding: 20px;
-  flex-shrink: 0;
+  padding: 1rem .5rem;
+  display: inline-flex;
+  align-items: center;
+  font-weight: 500;
+}
+
+.custon-btn-container h1, .custon-btn-container span {
+  font-size: var(--small-font-size);
+  margin-bottom: 0;
+}
+
+button.custom-btn-primary {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  align-items: center;
+  padding: 0;
+}
+
+.custom-btn-primary .logo {
+  font-size: var(--logo-font-size);
+  color: #000;
+  position: absolute;
+  top: 54%;
+  transform: translateY(-50%);
+}
+
+.logo-container {
+  display: inline-flex;
+  background: white;
+  border-radius: 100%;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  width: 28px;
+  height: 28px;
+}
+
+.custom-btn-primary i {
+  font-size: var(--small-font-size);
 }
 
 .main-content {
@@ -47,7 +104,8 @@ a {
     position: fixed;
     width: 300px;
     height: 100vh;
-    background: var(--chat-history-bg);
+    background: var(--side-panels-bg);
+    padding: .75rem;
 }
 
 .chatbot-section {
@@ -57,5 +115,20 @@ a {
   padding-bottom: 20px;
 }
 
+button.btn {
+  transition: 0.2s all ease-in-out;
+}
 
-
+.btn.custom-btn-primary {
+  --bs-btn-font-weight: 600;
+  --bs-btn-color: #fff;
+  --bs-btn-bg: transparent;
+  --bs-btn-border-color: var(--bd-violet-bg);
+  --bs-btn-hover-color: var(--bs-white);
+  --bs-btn-hover-bg: #1e1e1e;
+  /* --bs-btn-hover-border-color: var(());
+  --bs-btn-focus-shadow-rgb: var(());
+  --bs-btn-active-color: var(());
+  --bs-btn-active-bg: var(());
+  --bs-btn-active-border-color: var(()); */
+}
