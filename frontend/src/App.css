@@ -182,3 +182,10 @@ button.btn.custom-btn-primary.default {
   width: auto;
   background: transparent;
 }
+
+.modal-backdrop {
+  --bs-backdrop-bg: rgb(0 0 0 / 23%) !important;
+  background-color: var(--bs-backdrop-bg);
+  backdrop-filter: blur(10px);
+  opacity: unset !important;
+}
