@@ -1,7 +1,9 @@
-import React, {useEffect, useState, useContext} from 'react';
+import React, {useEffect, useState, useContext, useRef} from 'react';
 import './index.css'
 import axios from "axios";
 import {TableContext} from "@/context/db.jsx";
+import { useChatbotContainer } from '@/context/chatbox.jsx';
+
 function DropdownWithButtons({}) {
     const [buttonLabel, setButtonLabel] = useState('Databases');
     const [showExtraButtons, setShowExtraButtons] = useState(false);
@@ -9,6 +11,11 @@ function DropdownWithButtons({}) {
     const [tables, setTables] = useState([]);
     const [tableButtonLabel, setTableButtonLabel] = useState('Tables');
     const { setTableResponse } = useContext(TableContext);
+    const { tableResponse } = useContext(TableContext)
+    let eavOffCanvas = useRef(null);
+    const { toggleShrink } = useChatbotContainer();
+    //let eavOffCanvasToggle = useRef(null);
+    //let chatBoxContainer = useRef(null);
 
     useEffect(() => {
         fetchDatabases();
@@ -65,6 +72,10 @@ function DropdownWithButtons({}) {
         }
     }
 
+    const handleParentDynamicView = () => {
+        toggleShrink();
+    }
+
     return (
         <div className="table-selector-container" >
             <div className="dropdown">
@@ -96,6 +107,28 @@ function DropdownWithButtons({}) {
                     </div>
                 </>
             )}
+            <button type="button" className="btn" data-bs-toggle="offcanvas" data-bs-target="#eav-attr" aria-controls="eav-attr" onClick={(e) => handleParentDynamicView(e)}>
+                <span className="custon-btn-container mb-0 mx-2">
+                    <span className="me-3">
+                        <i className="bi bi-database-gear"></i>
+                    </span>
+                    <span>
+                        EAV
+                    </span>
+                </span>
+            </button>
+            <div className="offcanvas offcanvas-end eav-custom" ref={eavOffCanvas} data-bs-scroll="true" data-bs-backdrop="false" tabIndex="-1" id="eav-attr" aria-labelledby="eav-attr">
+                <div className="offcanvas-header">
+                    <h5 className="offcanvas-title" id="offcanvasWithBothOptionsLabel">EAV</h5>
+                    <button type="button" className="btn btn-close custom-btn-close" data-bs-dismiss="offcanvas" aria-label="Close" onClick={(e) => handleParentDynamicView(e)}>
+                        <i className="bi bi-x-lg"></i>
+                    </button>
+                </div>
+                <div className="offcanvas-body">
+                    <p>Label: {tableResponse?.label}</p>
+                    <p>Attribute: {tableResponse?.attribute}</p>
+                </div>
+            </div>
         </div>
     );
 }

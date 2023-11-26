@@ -22,3 +22,17 @@ button.custom-toggle {
 .button-container.tables {
     margin-left: .5rem;
 }
+
+#eav-attr {
+    background: var(--side-panels-bg);
+    color: white;
+}
+
+button.btn-close.custom-btn-close {
+    --bs-btn-close-bg: none;
+    background: transparent;
+}
+
+button.btn-close.custom-btn-close i {
+    color: #fff;
+}
