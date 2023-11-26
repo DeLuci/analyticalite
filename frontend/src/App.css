@@ -168,3 +168,17 @@ button.btn {
 .form-floating>label {
   color: #a3a3a3;
 }
+
+.offcanvas {
+  transition: 0.25s all ease-in-out !important;
+  opacity: 0;
+}
+
+.offcanvas.show:not(.hiding), .offcanvas.showing {
+  opacity: 1;
+}
+
+button.btn.custom-btn-primary.default {
+  width: auto;
+  background: transparent;
+}

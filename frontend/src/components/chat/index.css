@@ -6,6 +6,7 @@
 /* Chatbot.css */
 .chatbot-container.shrink {
     margin-right: 400px;
+    /* transition: all 0.2s ease-in-out; */
 }
 
 .chatbot-container {

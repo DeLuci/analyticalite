@@ -107,7 +107,7 @@ function DropdownWithButtons({}) {
                     </div>
                 </>
             )}
-            <button type="button" className="btn" data-bs-toggle="offcanvas" data-bs-target="#eav-attr" aria-controls="eav-attr" onClick={(e) => handleParentDynamicView(e)}>
+            <button type="button" className="btn custom-btn-primary default" data-bs-toggle="offcanvas" data-bs-target="#eav-attr" aria-controls="eav-attr" onClick={(e) => handleParentDynamicView(e)}>
                 <span className="custon-btn-container mb-0 mx-2">
                     <span className="me-3">
                         <i className="bi bi-database-gear"></i>
