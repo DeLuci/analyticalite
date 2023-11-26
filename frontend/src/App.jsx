@@ -73,12 +73,14 @@ function App() {
                     <div className="modal-content">
                         <div className="modal-header">
                             <h1 className="modal-title fs-5" id="exampleModalCenteredScrollableTitle">Create a Database</h1>
-                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <button type="button" className="btn btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close">
+                              <i className="bi bi-x-lg"></i>
+                            </button>
                         </div>
                         <div className="modal-body">
                             <form>
                                 <div className="form-floating mb-3">
-                                    <input type="email" className="form-control" id="floatingInput" name="create_database" value={databaseName} onChange={(e) => setFileName(e.target.value)} placeholder="example_db" />
+                                    <input type="text" className="form-control custom-input" id="floatingInput" name="create_database" value={databaseName} onChange={(e) => setFileName(e.target.value)} placeholder="example_db" />
                                     <label htmlFor="floatingInput">Database Name</label>
                                 </div>
                             </form>

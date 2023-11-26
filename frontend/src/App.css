@@ -132,3 +132,39 @@ button.btn {
   --bs-btn-active-bg: var(());
   --bs-btn-active-border-color: var(()); */
 }
+
+/* Modal CSS */
+.modal-content {
+  background: #202123;
+  color: #d9d9e3;
+}
+
+.modal-header, .modal-footer {
+  border-color: hsla(0,0%,100%,.1);
+}
+
+.custom-input {
+  color: #a3a3a3;
+  background: #292a2d;
+  border: 1px solid #5e5e5e;
+}
+
+.form-control.custom-input:focus {
+    color: #d9d9e3;
+    background-color: #292a2d;
+    border: 1px solid #5e5e5e;
+    outline: 0;
+    box-shadow: 0 0 0 .25rem rgba(143, 143, 143, 0.25);
+}
+
+.form-floating>.form-control-plaintext~label::after, .form-floating>.form-control:focus~label::after, .form-floating>.form-control:not(:placeholder-shown)~label::after, .form-floating>.form-select~label::after {
+  background-color: #292a2d;
+}
+
+.form-floating>.form-control-plaintext~label, .form-floating>.form-control:focus~label, .form-floating>.form-control:not(:placeholder-shown)~label, .form-floating>.form-select~label {
+  color: #a3a3a3;
+}
+
+.form-floating>label {
+  color: #a3a3a3;
+}
