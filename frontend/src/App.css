@@ -14,6 +14,22 @@
   box-sizing: border-box;
 }
 
+html {
+  /* For Firefox */
+  overflow-y: scroll;
+  scrollbar-color: transparent #202225e6;
+  scrollbar-width: thin;
+}
+
+/* For Chrome and other browsers except Firefox */
+::-webkit-scrollbar {
+    width: 5px; 
+    background-color: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background-color: #202225e6; 
+}
+
 html, body, #root {
   height: 100%;
   width: 100%;
