@@ -2,7 +2,6 @@ import React, { useState, useContext } from 'react';
 import './index.css';
 import axios from 'axios'
 import { TableContext } from "@/context/db.jsx";
-// Import all of Bootstrap's JS
 
 const Chatbot = () => {
     const [messages, setMessages] = useState([]);
@@ -94,6 +93,14 @@ const Chatbot = () => {
             <div className="chat-box">
                 <div className="chat-window">
                     <div className="chat-top">
+                        <div className={messages.length ? "chat-init hide-slide" : "chat-init"}>
+                            <div className="custon-btn-container mb-0 mx-2">
+                                <div className="logo-container mb-4">
+                                    <i className="bi bi-tropical-storm logo"></i>
+                                </div>
+                                <div className="chat-init-title">How can I help you today?</div>
+                            </div>
+                        </div>
                         {messages.map((message, index) => (
                             <div key={index} className={`chat-message ${message.sender}-message`}>
                                 <p>{message.text}</p>

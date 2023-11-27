@@ -148,3 +148,44 @@ input[type="file"] {
     transform: translatey(-50%);
     left: 20px;
 }
+
+.chat-init .custon-btn-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-init .logo {
+    font-size: var(--logo-font-size);
+    color: #000;
+    position: absolute;
+    top: 54%;
+    transform: translateY(-50%);
+}
+
+.chat-init .logo-container {
+    width: 78px;
+    height: 78px;
+}
+
+.chat-init .logo-container i {
+    font-size: 60px;
+}
+
+.chat-init-title {
+    font-size: 24px;
+    font-weight: 500;
+}
+
+.chat-init {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    transition: 0.3s all ease-in-out;
+}
+
+.chat-init.hide-slide {
+    opacity: 0;
+    height: 0;
+    overflow: hidden;
+}

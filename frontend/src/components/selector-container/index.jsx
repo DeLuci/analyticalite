@@ -79,22 +79,28 @@ function DropdownWithButtons({}) {
     return (
         <div className="table-selector-container" >
             <div className="dropdown">
-                <button id="dropdownButton" className="btn btn-secondary dropdown-toggle table-toggle custom-toggle" type="button" data-bs-toggle="dropdown"
+                <button id="dropdownButton" className="btn btn-secondary dropdown-toggle table-toggle custom-toggle custom-dropdown" type="button" data-bs-toggle="dropdown"
                         aria-expanded="false">
                     {buttonLabel}
+                    <i className="bi bi-chevron-down"></i>
                 </button>
                 <ul className="dropdown-menu custom-menu">
                     {databases.map(database => (
-                        <li key={database}><a className="dropdown-item" href="#" onClick={() => handleDropdownItemClick(database)}>{database}</a></li>
+                        <li key={database}>
+                            <a className="dropdown-item" href="#" onClick={() => handleDropdownItemClick(database)}>
+                                {database}
+                            </a>
+                        </li>
                     ))}
                 </ul>
             </div>
             {showExtraButtons && (
                 <>
                     <div className="button-container tables">
-                        <button className="btn btn-secondary dropdown-toggle table-toggle custom-toggle" type="button" data-bs-toggle="dropdown"
+                        <button className="btn btn-secondary dropdown-toggle table-toggle custom-toggle custom-dropdown" type="button" data-bs-toggle="dropdown"
                                 aria-expanded="false">
                             {tableButtonLabel}
+                            <i className="bi bi-chevron-down"></i>
                         </button>
                         <ul className="dropdown-menu custom-menu">
                             {tables.map(table => (

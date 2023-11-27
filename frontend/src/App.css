@@ -189,3 +189,22 @@ button.btn.custom-btn-primary.default {
   backdrop-filter: blur(10px);
   opacity: unset !important;
 }
+
+button.custom-dropdown {
+  border: none;
+  background: transparent;
+}
+
+button.custom-dropdown:active, button.custom-dropdown:focus, button.custom-dropdown:hover {
+  background: #464858 !important;
+}
+
+.dropdown-toggle.custom-dropdown::after {
+  content: unset;
+}
+
+.dropdown-toggle.custom-dropdown i {
+  font-size: 11px;
+  margin-left: .5rem;
+  color: #98a3b8;
+}
