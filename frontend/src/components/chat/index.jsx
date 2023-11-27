@@ -90,7 +90,7 @@ const Chatbot = () => {
 
     return (
         <>
-            <div className="chat-box">
+            <div className="chat-box container">
                 <div className="chat-window">
                     <div className="chat-top">
                         <div className={messages.length ? "chat-init hide-slide" : "chat-init"}>
@@ -101,11 +101,19 @@ const Chatbot = () => {
                                 <div className="chat-init-title">How can I help you today?</div>
                             </div>
                         </div>
-                        {messages.map((message, index) => (
-                            <div key={index} className={`chat-message ${message.sender}-message`}>
-                                <p>{message.text}</p>
-                            </div>
-                        ))}
+                        <div className="chat-message-box-container">
+                            {messages.map((message, index) => (
+                                <div key={index} className={`chat-message ${message.sender}-message`}>
+                                    <div className="chat-user-box">
+                                        <span>{message.sender === "user" ? "U" : "A"}</span>
+                                    </div>
+                                    <div className="chat-message-box">
+                                        <p className="chat-user-title">{message.sender === "user" ? "You" : "AnalyticaLite+"}</p>
+                                        <p>{message.text}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
                 <form onSubmit={(e) => submitForm(e)}>

@@ -4,6 +4,7 @@
     --default-font-size: 16px;
     --small-font-size: 14px;
     --logo-font-size: 20px;
+    --default-font-color: #ececf1;
 }
 
 /* App.css */
@@ -18,6 +19,12 @@ html, body, #root {
   width: 100%;
   font-family: "Lucinda Grande", "Lucinda Sans Unicode", Helvetica, Arial, Verdana, sans-serif;
   overscroll-behavior-y: none;
+}
+
+.App {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 a {
@@ -50,7 +57,7 @@ a {
 .custon-btn-container {
   /*background-color: var(--main-bg);*/
   /* font-size: var(--default-font-size); */
-  color: white;
+  color: var(--default-font-color);
   padding: 1rem .5rem;
   display: inline-flex;
   align-items: center;

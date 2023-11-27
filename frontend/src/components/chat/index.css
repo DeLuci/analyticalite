@@ -1,6 +1,6 @@
 :root {
-    --chat-default-color: #a2a2a2;
-    --chat-font-size: 14px;
+    --chat-default-color: var(--default-font-color);
+    --chat-font-size: 16px;
 }
 
 /* Chatbot.css */
@@ -22,19 +22,19 @@
     display: flex;
     height: inherit;
     flex-direction: column;
+    overflow-y: hidden;
 }
 
 .chat-window {
-    /* overflow-y: scroll; */
     margin: 2rem;
     box-sizing: border-box;
     margin-bottom: 0;
-    flex: 1 1 auto;
     display: grid;
     grid-template-areas: 'top';
-        /* 'bottom'; */
     grid-auto-columns: 1fr;
     grid-auto-rows: 1fr;
+    overflow: scroll;
+    height: calc(100% - 52px);
 }
 
 .chat-top {
@@ -188,4 +188,40 @@ input[type="file"] {
     opacity: 0;
     height: 0;
     overflow: hidden;
+}
+
+.chat-message-box-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-message {
+    display: flex;
+    gap: .75rem;
+    margin-bottom: 1.7  5rem;
+}
+
+.chat-message .chat-user-box {
+    width: 24px;
+    height: 24px;
+    border-radius: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.chat-message.user-message .chat-user-box {
+    background: rgb(110, 37, 255);
+}
+
+.chat-message.bot-message .chat-user-box {
+    background: rgb(3, 181, 122);
+}
+
+.chat-user-title {
+    font-weight: 600;
+}
+
+.chat-message-box p {
+    margin-bottom: .5rem;
 }
