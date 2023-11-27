@@ -1,18 +1,39 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect, useRef} from 'react';
 import Chatbot from './components/chat'; // Adjust the import path as needed
 import './App.css';
 import DropdownWithButtons from "@/components/selector-container/index.jsx";
 import {TableInfoProvider} from '@/context/db.jsx';
 import {useChatbotContainer} from '@/context/chatbox.jsx';
+import {useMenuContainer} from '@/context/menu.jsx';
 
 function App() {
   const [databaseName, setDatabaseName] = useState('');
   const { isShrunk } = useChatbotContainer();
+  const { isMenuHidden, toggleMenu, setIsMenuHidden } = useMenuContainer();
+  const menuContainer = useRef(null);
+
+
+  // Resize Event Listener 
+  useEffect(() => {
+    const handleResize = () => {
+      if(window.innerWidth < 1200){
+        toggleMenu(); 
+      }
+      else {
+        setIsMenuHidden(false);
+      }
+    };
+
+    // Add Event Listener
+    window.addEventListener('resize', handleResize);
+    // Clean up
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <div className="App">
       <div className="main-content">
-          <div className="menu-content">
+          <div ref={menuContainer} className={isMenuHidden ? "menu-content hide-menu" : "menu-content"}>
               <div className="app-header">
                   <button type="button" className="btn custom-btn-primary" data-bs-toggle="modal" data-bs-target="#create-database">
                     <span className="custon-btn-container mb-0 mx-2">

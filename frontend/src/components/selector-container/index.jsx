@@ -3,6 +3,7 @@ import './index.css'
 import axios from "axios";
 import {TableContext} from "@/context/db.jsx";
 import { useChatbotContainer } from '@/context/chatbox.jsx';
+import {useMenuContainer} from '@/context/menu.jsx';
 
 function DropdownWithButtons({}) {
     const [buttonLabel, setButtonLabel] = useState('Databases');
@@ -14,8 +15,7 @@ function DropdownWithButtons({}) {
     const { tableResponse } = useContext(TableContext)
     let eavOffCanvas = useRef(null);
     const { toggleShrink } = useChatbotContainer();
-    //let eavOffCanvasToggle = useRef(null);
-    //let chatBoxContainer = useRef(null);
+    const { toggleMenu } = useMenuContainer();
 
     useEffect(() => {
         fetchDatabases();
@@ -76,8 +76,19 @@ function DropdownWithButtons({}) {
         toggleShrink();
     }
 
+    const handleMenuView = () => {
+        toggleMenu();
+    }
+
     return (
         <div className="table-selector-container" >
+            <div className="">
+                <button type="button" className="btn custom-btn-primary default" onClick={handleMenuView}>
+                    <span className="custon-btn-container mb-0 mx-2">
+                        <i className="bi bi-app-indicator"></i>
+                    </span>
+                </button>
+            </div>
             <div className="dropdown">
                 <button id="dropdownButton" className="btn btn-secondary dropdown-toggle table-toggle custom-toggle custom-dropdown" type="button" data-bs-toggle="dropdown"
                         aria-expanded="false">

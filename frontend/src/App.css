@@ -113,6 +113,15 @@ button.custom-btn-primary {
     height: 100vh;
     background: var(--side-panels-bg);
     padding: .75rem;
+    transition: 0.2s transform ease-in-out;
+}
+
+.menu-content.hide-menu {
+  transform: translateX(-100%);
+}
+
+.menu-content.hide-menu + .chatbot-container {
+  margin-left: 0px;
 }
 
 .chatbot-section {
