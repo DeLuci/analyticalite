@@ -19,6 +19,7 @@ html, body, #root {
   width: 100%;
   font-family: "Lucinda Grande", "Lucinda Sans Unicode", Helvetica, Arial, Verdana, sans-serif;
   overscroll-behavior-y: none;
+  overflow: hidden;
 }
 
 .App {

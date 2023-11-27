@@ -19,10 +19,11 @@ function App() {
       if(window.innerWidth < 1200){
         toggleMenu(); 
       }
-      else {
+      else {    
         setIsMenuHidden(false);
       }
     };
+    handleResize();
 
     // Add Event Listener
     window.addEventListener('resize', handleResize);
