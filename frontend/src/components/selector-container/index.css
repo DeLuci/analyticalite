@@ -36,3 +36,7 @@ button.btn-close.custom-btn-close {
 button.btn-close.custom-btn-close i {
     color: #fff;
 }
+
+p.eav-value {
+    font-size: 13px;
+}

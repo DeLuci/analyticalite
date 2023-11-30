@@ -1,25 +1,33 @@
+// eslint-disable-next-line no-unused-vars
 import React, {useEffect, useState, useContext, useRef} from 'react';
 import './index.css'
 import axios from "axios";
-import {TableContext} from "@/context/db.jsx";
+// import {TableContext} from "@/context/db.jsx";
 import { useChatbotContainer } from '@/context/chatbox.jsx';
 import {useMenuContainer} from '@/context/menu.jsx';
+import { DatabaseUpdateContext } from '@/context/databaseUpdateContext.jsx';
 
+
+// eslint-disable-next-line no-empty-pattern
 function DropdownWithButtons({}) {
     const [buttonLabel, setButtonLabel] = useState('Databases');
     const [showExtraButtons, setShowExtraButtons] = useState(false);
     const [databases, setDatabases] = useState([]);
     const [tables, setTables] = useState([]);
     const [tableButtonLabel, setTableButtonLabel] = useState('Tables');
-    const { setTableResponse } = useContext(TableContext);
-    const { tableResponse } = useContext(TableContext)
+    const [ tableResponse, setTableResponse ] = useState({})
     let eavOffCanvas = useRef(null);
-    const { toggleShrink } = useChatbotContainer();
+    const { toggleShrink, updateTableList } = useChatbotContainer();
     const { toggleMenu } = useMenuContainer();
+    const { updateTrigger } = useContext(DatabaseUpdateContext);
 
     useEffect(() => {
-        fetchDatabases();
-    }, []);
+        fetchDatabases()
+    }, [updateTrigger]);
+
+    useEffect(() => {
+        getTables()
+    }, [updateTableList]);
 
     const fetchDatabases = async () => {
         try {
@@ -35,19 +43,21 @@ function DropdownWithButtons({}) {
             const response = await axios.post("http://localhost:8000/connect", {db_name: databaseName})
             console.log(response.data.message)
             setButtonLabel(databaseName);
+            getTables()
         } catch (error) {
             console.log(error)
         }
+        setShowExtraButtons(true);
+    };
 
-
+    const getTables = async () => {
         try {
             const response = await axios.get("http://localhost:8000/tables")
             setTables(response.data.tables);
         } catch (error) {
             console.error("Error fetching tables:", error);
         }
-        setShowExtraButtons(true);
-    };
+    }
 
     const handleTableDropdownItemClick = async (tableName) => {
         try {
@@ -57,7 +67,6 @@ function DropdownWithButtons({}) {
         } catch (error) {
             console.log(error)
         }
-
     }
 
     const handleCloseDatabase = async () => {
@@ -66,6 +75,7 @@ function DropdownWithButtons({}) {
             setButtonLabel('Databases');
             setTableButtonLabel('Tables');
             setShowExtraButtons(false);
+            setTableResponse({})
             console.log(response.data.message)
         } catch (error) {
             console.log("error:", error)
@@ -89,22 +99,25 @@ function DropdownWithButtons({}) {
                     </span>
                 </button>
             </div>
+            {!showExtraButtons && (
             <div className="dropdown">
-                <button id="dropdownButton" className="btn btn-secondary dropdown-toggle table-toggle custom-toggle custom-dropdown" type="button" data-bs-toggle="dropdown"
-                        aria-expanded="false">
-                    {buttonLabel}
-                    <i className="bi bi-chevron-down"></i>
-                </button>
-                <ul className="dropdown-menu custom-menu">
-                    {databases.map(database => (
-                        <li key={database}>
-                            <a className="dropdown-item" href="#" onClick={() => handleDropdownItemClick(database)}>
-                                {database}
-                            </a>
-                        </li>
-                    ))}
-                </ul>
+                    <button id="dropdownButton" className="btn btn-secondary dropdown-toggle table-toggle custom-toggle custom-dropdown" type="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                        {buttonLabel}
+                        <i className="bi bi-chevron-down"></i>
+                    </button>
+
+                    <ul className="dropdown-menu custom-menu">
+                        {databases.map(database => (
+                            <li key={database}>
+                                <a className="dropdown-item" href="#" onClick={() => handleDropdownItemClick(database)}>
+                                    {database}
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
             </div>
+            )}
             {showExtraButtons && (
                 <>
                     <div className="button-container tables">
@@ -142,8 +155,22 @@ function DropdownWithButtons({}) {
                     </button>
                 </div>
                 <div className="offcanvas-body">
-                    <p>Label: {tableResponse?.label}</p>
-                    <p>Attribute: {tableResponse?.attribute}</p>
+                    <div className="eav-item label">
+                        <h4>Label:</h4>
+                    </div>
+                    {tableResponse?.label && (
+                        tableResponse.label.map(label => (
+                            <p className="eav-value" key={label}>{label}</p>
+                        ))
+                    )}
+                    <div className="eav-item label">
+                        <h4>Attribute:</h4>
+                    </div>
+                    {tableResponse?.attribute && (
+                        tableResponse.attribute.map(attribute => (
+                            <p className="eav-value" key={attribute}>{attribute}</p>
+                        ))
+                    )}
                 </div>
             </div>
         </div>
