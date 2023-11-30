@@ -34,4 +34,8 @@ class Repository:
     def delete(self, query):
         raise NotImplementedError
 
+    @abstractmethod
+    def execute_generated_query(self, query: str):
+        raise NotImplementedError
+
 

@@ -3,7 +3,7 @@ import os
 import uvicorn
 import io
 
-from fastapi import FastAPI, HTTPException, UploadFile, File, Request
+from fastapi import FastAPI, HTTPException, UploadFile, File, Request, Form
 from fastapi.middleware.cors import CORSMiddleware
 from dbrepo.db import Sqlite3Database
 from functions import utils, local_llm
@@ -29,11 +29,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
 
 
 @app.post("/connect")
@@ -62,23 +57,26 @@ def close_database():
 
 
 @app.post("/new")
-def new_database(db_name: str):
+async def new_database(request: Request):
+    data = await request.json()
+    db_name = data["db_name"]
     db_path = f'./databases/{db_name}.db'
 
     if os.path.exists(db_path):
-        raise HTTPException(status_code=400, detail="Database already exits")
+        raise HTTPException(status_code=400, detail="Database already exists")
 
     try:
         with open(db_path, 'w'):
             pass
         os.chmod(db_path, 0o666)
-        return {"message": "Database was successfully created!"}
     except Exception:
         raise HTTPException(status_code=400, detail="Database could not be created")
 
+    return {"message": "Database was successfully created!"}
+
 
 @app.post("/load")
-async def load_file(file: UploadFile = File(...)):
+async def load_file(file: UploadFile = File(...), fileName: str = Form(...)):
     if db.db is None:
         raise HTTPException(status_code=400, detail="No database connection")
 
@@ -88,13 +86,13 @@ async def load_file(file: UploadFile = File(...)):
     if file_name.endswith('.csv'):
         indentation = utils.get_label_hierarchy(contents, "csv")
         df = pd.read_csv(io.StringIO(contents.decode('utf-8')))
-        file_name = file_name.strip(".csv")
     elif file_name.endswith('.xlsx'):
         indentation = utils.get_label_hierarchy(contents, "xlsx")
         df = pd.read_excel(io.BytesIO(contents), sheet_name="Data")
-        file_name = file_name.replace(".xlsx", "")
     else:
         raise HTTPException(status_code=400, detail="Unsupported file type")
+
+    print("Before sanitizing files")
 
     utils.sanitize_columns(df, indentation)
     utils.add_label_grouping(df)
@@ -114,16 +112,16 @@ async def load_file(file: UploadFile = File(...)):
             structured_data[key] = row[attribute]
 
     try:
-        db.eav_schema(file_name)
+        db.eav_schema(fileName)
     except Exception:
         raise HTTPException(status_code=400, detail=f"Table could not be created")
 
     try:
-        db.insert_table_info(file_name, labels, attributes, structured_data)
+        db.insert_table_info(fileName, labels, attributes, structured_data)
     except Exception:
         raise HTTPException(status_code=400, detail=f"Table info could not be inserted")
 
-    return {"message", "File loaded successfully"}
+    return {"message": "File uploaded successfully"}
 
 
 @app.post("/drop")
@@ -171,17 +169,24 @@ async def selected_table(request: Request):
     return mp
 
 
-@app.get("/message")
-def receive_message(input: str):
+@app.post("/message")
+async def receive_message(request: Request):
     if db.db is None:
         raise HTTPException(status_code=400, detail="No database connection")
+
+    data = await request.json()
+    message = data["input"]
 
     schema = db.fetch_table_creation_code()
     attribute_label_info = db.attribute_label_code()
 
-    response_query = local_llm.generate_query(input, schema, attribute_label_info)
+    response_query = local_llm.generate_query(message, schema, attribute_label_info)
     print(response_query)
-    return {"message": "here"}
+    result, error = db.execute_generated_query(response_query)
+
+    final_response = local_llm.generate_interpretation(message, result, error, response_query)
+
+    return {"message": final_response}
 
 
 @app.get("/databases")

@@ -160,5 +160,20 @@ class Sqlite3Database(Repository, ABC):
         conn.close()
         return mp
 
+    def execute_generated_query(self, query):
+        conn = self.connection()
+        try:
+            # Assuming you have a function to get your database connection
+            cursor = conn.cursor()
+            cursor.execute(query)
+            result = cursor.fetchall()
+            conn.commit()
+            return result, None
+        except Exception as e:
+            return None, str(e)
+        finally:
+            if conn:
+                conn.close()
+
     def set_selected_table(self, table_name):
         self.selected_table = table_name

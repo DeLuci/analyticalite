@@ -1,6 +1,5 @@
 import csv
 import io
-
 from openpyxl import load_workbook
 import pandas as pd
 
@@ -86,6 +85,7 @@ def sanitize_columns(df: pd.DataFrame, indentation: list):
         df.reset_index(drop=True, inplace=True)
     else:
         df["Indentation"] = indentation
+
 
 def add_label_grouping(df: pd.DataFrame):
     recent_labels = {}
