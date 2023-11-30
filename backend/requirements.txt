@@ -3,3 +3,4 @@ fastapi
 uvicorn[standard]
 llama-cpp-python
 openpyxl
+huggingface-hub>=0.17.1
