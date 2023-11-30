@@ -1,17 +1,15 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import './index.css';
 import axios from 'axios'
-import { TableContext } from "@/context/db.jsx";
+import {useChatbotContainer} from "@/context/chatbox.jsx";
+
 
 const Chatbot = () => {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
     const [file, setFile] = useState(null);
-    const [fileName, setFileName] = useState('');
-
-    // Not used yet.
-    const [databaseInfo, setDatabaseInfo] = useState({})
-    const { tableResponse } = useContext(TableContext)
+    let [fileName, setFileName] = useState('');
+    const { toggleTableList } = useChatbotContainer();
 
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
@@ -29,22 +27,24 @@ const Chatbot = () => {
     };
 
     const modalAlert = () => {
+        // eslint-disable-next-line no-undef
         let myModal = new bootstrap.Modal(document.getElementById('add-filename'), {
             keyboard: false
         });
         myModal.show();
     };
 
-    const validateFileName = async () => {
-        if(fileName)
-            await uploadFile();
-    }
+    const validateFileName =  () => {
+        if (fileName) {
+            let sanitizedFileName = fileName.replace(/[^a-zA-Z0-9_]/g, '_');
 
-    const printFormData = (formData) => {
-       // Get the values of the FormData object
-       formData.forEach((value, key) => {
-            console.log(`${key}: ${value}`);
-        });
+            if (!/^[a-zA-Z_]/.test(sanitizedFileName)) {
+                sanitizedFileName = '_' + sanitizedFileName;
+            }
+
+            fileName = sanitizedFileName;
+            uploadFile();
+        }
     }
 
     const uploadFile = async () => {
@@ -59,12 +59,17 @@ const Chatbot = () => {
                     'Content-Type': 'multipart/form-data'
                 }
             });
-            console.log(response)
-            setMessages(msgs => [...msgs, { text: "File uploaded successfully", sender: "bot" }]);
+            if (response.data) {
+                alert(response.data.message)
+                toggleTableList()
+            }
+
         } catch (error) {
-            console.error('Error uploading file:', error);
+            setMessages(msgs => [...msgs, {text: error.response.data.detail, sender: "bot"}])
         }
 
+        setFileName('')
+        document.getElementById('file-upload').value = '';
         setFile(null);
     }
 
@@ -72,20 +77,27 @@ const Chatbot = () => {
         e.preventDefault();
         if(file){
             modalAlert();
-            await validateFileName();
+            validateFileName();
         }
         sendMessage();
     };
 
-    const sendMessage = () => {
+    const sendMessage = async () => {
         if (!input.trim()) return;
-        console.log("passes here")
         setMessages([...messages, { text: input, sender: 'user' }]);
-        setInput('');
+        try {
+            const response = await axios.post('http://localhost:8000/message', {input: input})
+            if (response.data) {
+                setMessages(msgs => [...msgs, {text: response.data.message, sender: 'bot'}]);
+            }
+        }
+        catch (error) {
+            setTimeout(() => {
+                setMessages(msgs => [...msgs, { text: "Sorry, I cannot respond to that" + ": " + error.response.data.detail, sender: 'bot' }]);
+            }, 1000);
+        }
 
-        setTimeout(() => {
-            setMessages(msgs => [...msgs, { text: "This is a response from the bot!", sender: 'bot' }]);
-        }, 1000);
+        setInput('');
     };
 
     return (

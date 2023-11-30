@@ -198,7 +198,7 @@ input[type="file"] {
 .chat-message {
     display: flex;
     gap: .75rem;
-    margin-bottom: 1.7  5rem;
+    margin-bottom: 1rem;
 }
 
 .chat-message .chat-user-box {
@@ -208,6 +208,7 @@ input[type="file"] {
     display: flex;
     justify-content: center;
     align-items: center;
+    flex: 0 0 auto;
 }
 
 .chat-message.user-message .chat-user-box {
