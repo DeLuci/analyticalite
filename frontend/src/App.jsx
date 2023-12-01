@@ -7,7 +7,7 @@ import {TableInfoProvider} from '@/context/db.jsx';
 import {useChatbotContainer} from '@/context/chatbox.jsx';
 import {useMenuContainer} from '@/context/menu.jsx';
 import { useDatabaseUpdateContext } from '@/context/databaseUpdateContext.jsx';
-
+import {fakeClick} from "@/components/helpers/modalHelpers.jsx";
 import axios from "axios";
 
 function App() {
@@ -49,7 +49,7 @@ function App() {
   }, []);
 
   const closeDbModal = () => {
-      closeModalButton.current.click();
+    fakeClick(closeModalButton);
   }
 
   const submitDatabase = async (databaseName) => {

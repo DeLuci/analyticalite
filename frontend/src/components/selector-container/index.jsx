@@ -100,6 +100,7 @@ function DropdownWithButtons({}) {
                 // Remove the deleted database from the state
                 const updatedDatabases = databases.filter(database => database !== dbKey);
                 setDatabases(updatedDatabases);
+                setButtonLabel('Databases');
             }
         } catch (error) {
             console.error("Error deleting database:", error);
@@ -114,6 +115,7 @@ function DropdownWithButtons({}) {
                 // Remove the deleted database from the state
                 const updateTables = tables.filter(table => table !== tableKey);
                 setTables(updateTables);
+                setTableButtonLabel('Tables');
             }
         } catch (error) {
             console.error("Error deleting table:", error);
@@ -159,7 +161,7 @@ function DropdownWithButtons({}) {
                         </button>
                         <ul ref={tableMenu} className="dropdown-menu custom-menu">
                             {tables.map(table => (
-                                <li key={table} className="dropdown-item">
+                                <li key={table} className='dropdown-item d-flex justify-content-between'>
                                     <a href="#" onClick={() => handleTableDropdownItemClick(table)}>
                                         {table}
                                     </a>

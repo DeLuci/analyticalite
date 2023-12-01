@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import './index.css';
 import axios from 'axios'
 import {useChatbotContainer} from "@/context/chatbox.jsx";
@@ -9,8 +9,10 @@ const Chatbot = () => {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
     const [file, setFile] = useState(null);
-    let [fileName, setFileName] = useState('');
     const { toggleTableList } = useChatbotContainer();
+    let [fileName, setFileName] = useState('');
+    let uploadModalClose = useRef(null);
+    let uploadModal = null;
 
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
@@ -29,10 +31,10 @@ const Chatbot = () => {
 
     const modalAlert = () => {
         // eslint-disable-next-line no-undef
-        let myModal = new bootstrap.Modal(document.getElementById('add-filename'), {
+        uploadModal = new bootstrap.Modal(document.getElementById('add-filename'), {
             keyboard: false
         });
-        myModal.show();
+        uploadModal.show();
     };
 
     const validateFileName =  () => {
@@ -45,6 +47,7 @@ const Chatbot = () => {
 
             fileName = sanitizedFileName;
             uploadFile();
+            fakeClick(uploadModalClose);
         }
     }
 
@@ -163,7 +166,7 @@ const Chatbot = () => {
                             </form>
                         </div>
                         <div className="modal-footer">
-                            <button type="button" className="btn btn-dark" data-bs-dismiss="modal">Close</button>
+                            <button type="button" className="btn btn-dark" ref={uploadModalClose} data-bs-dismiss="modal">Close</button>
                             <button type="button" className="btn btn-success" onClick={() => validateFileName()}>Save changes</button>
                         </div>
                     </div>
