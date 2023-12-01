@@ -241,3 +241,7 @@ button.custom-dropdown:active, button.custom-dropdown:focus, button.custom-dropd
   margin-left: .5rem;
   color: #98a3b8;
 }
+
+.cursor-pointer {
+  cursor: pointer;
+}

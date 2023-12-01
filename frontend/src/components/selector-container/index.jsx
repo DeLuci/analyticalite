@@ -16,10 +16,12 @@ function DropdownWithButtons({}) {
     const [tables, setTables] = useState([]);
     const [tableButtonLabel, setTableButtonLabel] = useState('Tables');
     const [ tableResponse, setTableResponse ] = useState({})
-    let eavOffCanvas = useRef(null);
     const { toggleShrink, updateTableList } = useChatbotContainer();
     const { toggleMenu } = useMenuContainer();
     const { updateTrigger } = useContext(DatabaseUpdateContext);
+    const eavOffCanvas = useRef(null);
+    const databaseMenu = useRef(null);
+    const tableMenu = useRef(null);
 
     useEffect(() => {
         fetchDatabases()
@@ -90,6 +92,34 @@ function DropdownWithButtons({}) {
         toggleMenu();
     }
 
+    const deleteDatabase = async (e) => {
+        const dbKey = e.target.getAttribute('data-db-key');
+        try {
+            const response = await axios.post("http://localhost:8000/deleteDB", { db_name: dbKey });
+            if (response.status === 200) {
+                // Remove the deleted database from the state
+                const updatedDatabases = databases.filter(database => database !== dbKey);
+                setDatabases(updatedDatabases);
+            }
+        } catch (error) {
+            console.error("Error deleting database:", error);
+        }
+    };
+
+    const deleteTable = async (e) => {
+        const tableKey = e.target.getAttribute('data-table-key');
+        try {
+            const response = await axios.post("http://localhost:8000/deleteTable", { table_name: tableKey });
+            if (response.status === 200) {
+                // Remove the deleted database from the state
+                const updateTables = tables.filter(table => table !== tableKey);
+                setTables(updateTables);
+            }
+        } catch (error) {
+            console.error("Error deleting table:", error);
+        }
+    };
+
     return (
         <div className="table-selector-container" >
             <div className="">
@@ -107,12 +137,13 @@ function DropdownWithButtons({}) {
                         <i className="bi bi-chevron-down"></i>
                     </button>
 
-                    <ul className="dropdown-menu custom-menu">
+                    <ul ref={databaseMenu} className="dropdown-menu custom-menu">
                         {databases.map(database => (
-                            <li key={database}>
-                                <a className="dropdown-item" href="#" onClick={() => handleDropdownItemClick(database)}>
+                            <li key={database} className='dropdown-item d-flex justify-content-between'>
+                                <a className="" href="#" onClick={() => handleDropdownItemClick(database)}>
                                     {database}
                                 </a>
+                                <i className="bi bi-trash3 cursor-pointer" data-db-key={database} onClick={(e) => deleteDatabase(e)}></i>
                             </li>
                         ))}
                     </ul>
@@ -126,9 +157,14 @@ function DropdownWithButtons({}) {
                             {tableButtonLabel}
                             <i className="bi bi-chevron-down"></i>
                         </button>
-                        <ul className="dropdown-menu custom-menu">
+                        <ul ref={tableMenu} className="dropdown-menu custom-menu">
                             {tables.map(table => (
-                                <li key={table}><a className="dropdown-item" href="#" onClick={() => handleTableDropdownItemClick(table)}>{table}</a></li>
+                                <li key={table} className="dropdown-item">
+                                    <a href="#" onClick={() => handleTableDropdownItemClick(table)}>
+                                        {table}
+                                    </a>
+                                    <i className="bi bi-trash3 cursor-pointer" data-table-key={table} onClick={(e) => deleteTable(e)}></i>
+                                </li>
                             ))}
                         </ul>
                     </div>
