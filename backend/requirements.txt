@@ -1,6 +1,6 @@
 pandas
 fastapi
+python-multipart
 uvicorn[standard]
-llama-cpp-python
 openpyxl
 huggingface-hub>=0.17.1
