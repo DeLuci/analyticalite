@@ -92,6 +92,7 @@ class Sqlite3Database(Repository, ABC):
                 full_table_name = f"{table_name}_{suffix}"
                 cur.execute(f"DROP TABLE IF EXISTS '{full_table_name}'")
             conn.commit()
+            self.selected_table = None
         except Exception as e:
             print(f"Error deleting table '{table_name}':", e)
         finally:
