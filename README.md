@@ -56,7 +56,7 @@ huggingface-cli download TheBloke/Llama-2-7b-Chat-GGUF llama-2-7b-chat.Q8_0.gguf
 ```
 uvicorn main:app
 ```
-Note: If this doesn’t start open up a new terminal and run this command again in the same directory.
+Note: If this doesn’t start open up a new terminal and run this command again in the same directory with the activated venv.
 
 ## Frontend Setup
 
