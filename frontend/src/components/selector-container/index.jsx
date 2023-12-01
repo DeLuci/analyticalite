@@ -95,7 +95,7 @@ function DropdownWithButtons({}) {
     const deleteDatabase = async (e) => {
         const dbKey = e.target.getAttribute('data-db-key');
         try {
-            const response = await axios.post("http://localhost:8000/deleteDB", { db_name: dbKey });
+            const response = await axios.post("http://localhost:8000/drop-db", { db_name: dbKey });
             if (response.status === 200) {
                 // Remove the deleted database from the state
                 const updatedDatabases = databases.filter(database => database !== dbKey);
@@ -109,7 +109,7 @@ function DropdownWithButtons({}) {
     const deleteTable = async (e) => {
         const tableKey = e.target.getAttribute('data-table-key');
         try {
-            const response = await axios.post("http://localhost:8000/deleteTable", { table_name: tableKey });
+            const response = await axios.post("http://localhost:8000/drop-table", { table_name: tableKey });
             if (response.status === 200) {
                 // Remove the deleted database from the state
                 const updateTables = tables.filter(table => table !== tableKey);
