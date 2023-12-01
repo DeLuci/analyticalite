@@ -29,6 +29,7 @@ python3 -m venv ./venv
 ```
 . venv/bin/activate
 ```
+Note: This will be different for Windows.
 
 3. **Install Dependencies**:
 ```
