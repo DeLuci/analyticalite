@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './index.css';
 import axios from 'axios'
 import {useChatbotContainer} from "@/context/chatbox.jsx";
+import {fakeClick} from "@/components/helpers/modalHelpers.jsx";
 
 
 const Chatbot = () => {
@@ -15,11 +16,11 @@ const Chatbot = () => {
         const selectedFile = e.target.files[0];
         if (selectedFile) {
             const filetype = selectedFile.type
-            const validTypes = ['text/csv', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
+            const validTypes = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
             if (validTypes.includes(filetype)) {
                 setFile(selectedFile)
             } else {
-                alert('Please upload a CSV or XLSX file.')
+                alert('Please upload excel file.')
                 e.target.value = '';
             }
         }

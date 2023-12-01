@@ -92,8 +92,6 @@ async def load_file(file: UploadFile = File(...), fileName: str = Form(...)):
     else:
         raise HTTPException(status_code=400, detail="Unsupported file type")
 
-    print("Before sanitizing files")
-
     utils.sanitize_columns(df, indentation)
     utils.add_label_grouping(df)
     df.drop("Indentation", axis=1, inplace=True)
@@ -124,16 +122,19 @@ async def load_file(file: UploadFile = File(...), fileName: str = Form(...)):
     return {"message": "File uploaded successfully"}
 
 
-@app.post("/drop")
-def remove_table(table_name: str):
-    if db.db is None:
-        raise HTTPException(status_code=400, detail="No database connection")
+@app.post("/drop-db")
+async def drop_database(request: Request):
 
-    try:
-        db.drop_table(table_name)
-        return {"message": "Successfully dropped table"}
-    except Exception:
-        raise HTTPException(status_code=400, detail=f"Could not drop table: {table_name}")
+    data = await request.json()
+    db_name = data["db_name"]
+
+    db_path = os.path.join('./databases', db_name + '.db')
+
+    if os.path.exists(db_path):
+        os.remove(db_path)
+        return {"message": f"Database {db_name} removed successfully."}
+    else:
+        raise HTTPException(status_code=404, detail="Database not found or already removed")
 
 
 @app.get("/tables")
@@ -174,6 +175,9 @@ async def receive_message(request: Request):
     if db.db is None:
         raise HTTPException(status_code=400, detail="No database connection")
 
+    if db.selected_table is None:
+        raise HTTPException(status_code=400, detail="No table selected")
+
     data = await request.json()
     message = data["input"]
 
@@ -181,7 +185,7 @@ async def receive_message(request: Request):
     attribute_label_info = db.attribute_label_code()
 
     response_query = local_llm.generate_query(message, schema, attribute_label_info)
-    print(response_query)
+
     result, error = db.execute_generated_query(response_query)
 
     final_response = local_llm.generate_interpretation(message, result, error, response_query)
@@ -201,6 +205,20 @@ def databases():
 
     return {"databases": []}
 
+
+@app.post("/drop-table")
+async def drop_table(request: Request):
+    if db.db is None:
+        raise HTTPException(status_code=400, detail="No database connection")
+
+    data = await request.json()
+    table_name = data["table_name"]
+
+    try:
+        db.drop_table(table_name)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Cannot delete table")
+    return {"message": "Successfully deleted table!"}
 
 if __name__ == "__main__":
     uvicorn.run("server:app", host="localhost", reload=True, port=8080)

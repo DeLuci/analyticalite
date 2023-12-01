@@ -11,7 +11,7 @@ class LlamaModel:
         if cls._instance is None:
             cls._instance = super(LlamaModel, cls).__new__(cls)
             dir_of_script = os.path.dirname(os.path.abspath("../"))
-            cls._instance.model = Llama(dir_of_script+"/analyticalite/backend/models/llama-2-7b-chat.Q8_0.gguf", n_gpu_layers=32,
+            cls._instance.model = Llama(dir_of_script+"/analyticalite/backend/models/llama-2-7b-chat.Q8_0.gguf", n_gpu_layers=-1,
                                         n_ctx=3000)
         return cls._instance.model
 

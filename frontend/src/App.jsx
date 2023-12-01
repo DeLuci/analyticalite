@@ -53,15 +53,20 @@ function App() {
   }
 
   const submitDatabase = async (databaseName) => {
+      if (!databaseName.trim()) {
+        alert("Database name cannot be empty.");
+        return;
+      }
+
       try {
           const response = await axios.post("http://localhost:8000/new", {db_name: databaseName})
           console.log(response.data.message);
           triggerUpdate();
-          // alert(response.data.message);
+          alert(response.data.message);
       } catch (error) {
           console.log(error.response.data.detail ?? error);
       }
-    }
+  }
 
   return (
     <div className="App">

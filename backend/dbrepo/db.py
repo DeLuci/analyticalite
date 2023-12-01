@@ -30,8 +30,10 @@ class Sqlite3Database(Repository, ABC):
         try:
             cur = conn.cursor()
             cur.execute(f"CREATE TABLE IF NOT EXISTS {table_name}_entity (entityID INTEGER PRIMARY KEY, label TEXT);")
-            cur.execute(f"CREATE TABLE IF NOT EXISTS {table_name}_attribute (attributeID INTEGER PRIMARY KEY, attribute TEXT);")
-            cur.execute(f"CREATE TABLE IF NOT EXISTS {table_name}_value (entityID INTEGER, attributeID INTEGER, value TEXT, FOREIGN KEY (entityID) REFERENCES {table_name}_entity(entityID), FOREIGN KEY (attributeID) REFERENCES {table_name}_attribute(attributeID));")
+            cur.execute(
+                f"CREATE TABLE IF NOT EXISTS {table_name}_attribute (attributeID INTEGER PRIMARY KEY, attribute TEXT);")
+            cur.execute(
+                f"CREATE TABLE IF NOT EXISTS {table_name}_value (entityID INTEGER, attributeID INTEGER, value TEXT, FOREIGN KEY (entityID) REFERENCES {table_name}_entity(entityID), FOREIGN KEY (attributeID) REFERENCES {table_name}_attribute(attributeID));")
             conn.commit()
         except Exception as e:
             print("An error occured: ", e)
@@ -80,16 +82,21 @@ class Sqlite3Database(Repository, ABC):
             raise
         finally:
             cur.close()
+            conn.close()
 
     def drop_table(self, table_name: str):
         conn = self.connection()
+        cur = conn.cursor()
         try:
-            cur = conn.cursor()
-            cur.execute(f"DROP TABLE IF EXISTS {table_name}")
+            for suffix in self.tables:
+                full_table_name = f"{table_name}_{suffix}"
+                cur.execute(f"DROP TABLE IF EXISTS '{full_table_name}'")
             conn.commit()
-            cur.close()
         except Exception as e:
             print(f"Error deleting table '{table_name}':", e)
+        finally:
+            cur.close()
+            conn.close()
 
     def get_info(self, query: str) -> list:
         conn = self.connection()
